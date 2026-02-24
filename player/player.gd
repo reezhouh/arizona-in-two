@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-var speed: int = Gamestate.playerSpeed
+var speed = 100
 const deceleration := 10
 const acceleration := 50
 
