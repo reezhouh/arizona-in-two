@@ -4,18 +4,21 @@ var speed = 100
 const deceleration := 10
 const acceleration := 50
 
-func _ready() -> void:
-	pass
+var bullet = preload("res://bullet/bullet.tscn")
+@onready var main = $".."
+var shot_cooldown_seconds = 0.25
+var time_since_last_shot = 0
 
 func _physics_process(delta: float) -> void:
 	movement(delta) # Movement function (Others can be added below)
 	
+	shoot(delta)
 	
 	move_and_slide()
 
 func movement(delta):
 	# Maps input to correct vector for velocity
-	var inputDir: Vector2 = Input.get_vector("Left", "Right", "Up", "Down")
+	var inputDir: Vector2 = Input.get_vector("MoveLeft", "MoveRight", "MoveUp", "MoveDown")
 	
 	if inputDir:
 		# Slowly increases the speed
@@ -58,3 +61,28 @@ func movement(delta):
 	else:
 		# Slowly decreases the speed of the player
 		velocity = lerp(velocity, Vector2(0, 0), delta * deceleration)
+
+func shoot(delta):
+	# Maps input to correct vector for velocity
+	var inputDir: Vector2 = Input.get_vector("ShootLeft", "ShootRight", "ShootUp", "ShootDown")
+	
+	if time_since_last_shot < shot_cooldown_seconds:
+		time_since_last_shot += delta
+		return
+	
+	if inputDir:
+		
+		time_since_last_shot = 0
+		
+		var instance = bullet.instantiate()
+		main.add_child(instance)
+		
+		# Finds which direction
+		if inputDir.x < 0: instance.x_direction = -1
+		elif inputDir.x > 0: instance.x_direction = 1
+		elif inputDir.y < 0: instance.y_direction = -1
+		elif inputDir.y > 0: instance.y_direction = 1
+		
+		instance.position = position
+		
+		time_since_last_shot += delta
